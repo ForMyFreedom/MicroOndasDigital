@@ -1,3 +1,5 @@
+import { UncertainResponse } from "./utils"
+
 export const MIN_TIME = 1
 export const MAX_TIME = 120
 
@@ -11,7 +13,7 @@ export const FAST_START_POTENCY = 10
 export const TIME_ADDITION = 30
 
 export interface IHeatRunner {
-    clickToHeat(time: number, potency: number): boolean
-    fastStart(): { time: string, potency: string }
+    clickToHeat(time: number, potency: number): void
+    fastStart(): UncertainResponse<{ time: string, potency: string }>
     clickToStop(): void
 }

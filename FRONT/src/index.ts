@@ -1,14 +1,6 @@
+import { errorLabel, exibitionTimeLabel, fastStartButton, heatButton, potencyInput, processLabel, stopButton, timeInput } from "./config.js"
 import { DEFAULT_POTENCY, IHeatRunner } from "./domain/heatDomain.js"
 import { HeatRunner } from "./services/heatService.js"
-
-const timeInput = document.getElementById("timeInput") as HTMLInputElement
-const potencyInput = document.getElementById("potencyInput") as HTMLInputElement
-const heatButton = document.getElementById("heatButton") as HTMLButtonElement
-const fastStartButton = document.getElementById("fastStartButton") as HTMLButtonElement
-const stopButton = document.getElementById("stopButton") as HTMLButtonElement
-const errorLabel = document.getElementById("errorLabel") as HTMLLabelElement
-const exibitionTimeLabel = document.getElementById("exibitionTimeLabel") as HTMLLabelElement
-const processLabel = document.getElementById("processLabel") as HTMLLabelElement
 
 const setExibitionTime = (time: string) => {
     exibitionTimeLabel.innerText = time
@@ -36,13 +28,15 @@ heatButton.addEventListener("click", () => {
     const potency = Number(potencyInput.value || DEFAULT_POTENCY)
     potencyInput.value = String(potency)
 
-    const result = HeatService.clickToHeat(time, potency)
+    HeatService.clickToHeat(time, potency)
 })
 
 fastStartButton.addEventListener("click", () => {
-    const result = HeatService.fastStart()
-    potencyInput.value = result.potency
-    timeInput.value = result.time
+    const response = HeatService.fastStart()
+    if(!response.error){
+        potencyInput.value = response.value.potency
+        timeInput.value = response.value.time
+    }
 })
 
 stopButton.addEventListener("click", () => {
