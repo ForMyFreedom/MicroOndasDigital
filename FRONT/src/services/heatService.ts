@@ -4,11 +4,14 @@ import { getExibitionTime } from "./time.js"
 
 export class HeatRunner implements IHeatRunner {
     private isRunning: boolean = false
+    private actualPotency: number = 0
     private remainingTime: number = 0
+    private processText: string = ''
 
     constructor(
         private setExibitionTime: Setter<string>,
-        private setErrorLabel: Setter<string>
+        private setErrorLabel: Setter<string>,
+        private setProcessLabel: Setter<string>
     ){}
 
     private resetLabels(){
@@ -45,10 +48,35 @@ export class HeatRunner implements IHeatRunner {
     
         this.isRunning = true
         this.remainingTime = time
+        this.actualPotency = potency
         this.updateExibitionTime()
+
+        this.heatLoop()
+        const myInterval = setInterval(()=>{
+            this.heatLoop(myInterval)
+        }, 1000)
+
         return true
     }
 
+    heatLoop(theInverval?: NodeJS.Timeout){
+        if (!this.isRunning) {
+            clearInterval(theInverval)
+            return
+        }
+        
+        this.remainingTime -= 1
+        this.processText += '.'.repeat(this.actualPotency)+' '
+
+        if (this.remainingTime<=0) {
+            this.processText += 'Aquecimento concluído'
+            clearInterval(theInverval)
+        }
+
+        this.updateExibitionTime()
+        this.setProcessLabel(this.processText)
+    }
+    
     fastStart(): { time: string, potency: string } {
         const time = FAST_START_TIME
         const potency = FAST_START_POTENCY

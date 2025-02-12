@@ -7,6 +7,7 @@ const heatButton = document.getElementById("heatButton") as HTMLButtonElement
 const fastStartButton = document.getElementById("fastStartButton") as HTMLButtonElement
 const errorLabel = document.getElementById("errorLabel") as HTMLLabelElement
 const exibitionTimeLabel = document.getElementById("exibitionTimeLabel") as HTMLLabelElement
+const processLabel = document.getElementById("processLabel") as HTMLLabelElement
 
 const setExibitionTime = (time: string) => {
     exibitionTimeLabel.innerText = time
@@ -16,8 +17,12 @@ const setErrorLabel = (message: string) => {
     errorLabel.innerText = message
 }
 
+const setProcessLabel = (process: string) => {
+    processLabel.innerText = process
+}
+
 const HeatService: IHeatRunner = new HeatRunner(
-    setExibitionTime, setErrorLabel
+    setExibitionTime, setErrorLabel, setProcessLabel
 )
 
 heatButton.addEventListener("click", () => {
