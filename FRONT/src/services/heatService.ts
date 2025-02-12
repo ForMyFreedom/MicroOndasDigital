@@ -1,8 +1,11 @@
-import { IHeatRunner, MAX_POTENCY, MAX_TIME, MIN_POTENCY, MIN_TIME } from "../domain/heatDomain.js"
+import { DEFAULT_POTENCY, FAST_START_POTENCY, FAST_START_TIME, IHeatRunner, MAX_POTENCY, MAX_TIME, MIN_POTENCY, MIN_TIME, TIME_ADDITION } from "../domain/heatDomain.js"
 import { Setter } from "../domain/utils.js"
 import { getExibitionTime } from "./time.js"
 
 export class HeatRunner implements IHeatRunner {
+    private isRunning: boolean = false
+    private remainingTime: number = 0
+
     constructor(
         private setExibitionTime: Setter<string>,
         private setErrorLabel: Setter<string>
@@ -13,7 +16,21 @@ export class HeatRunner implements IHeatRunner {
         this.setErrorLabel('')
     }
 
-    startTheHeat(time: number, potency: number = 10): boolean {
+    clickToHeat(time: number, potency: number = DEFAULT_POTENCY): boolean {
+        if (this.isRunning) {
+            return this.increaseTime()
+        } else {
+            return this.startTheHeat(time, potency)
+        }
+    }
+
+    private increaseTime(): boolean{
+        this.remainingTime += TIME_ADDITION
+        this.updateExibitionTime()
+        return true
+    }
+
+    private startTheHeat(time: number, potency: number): boolean{
         this.resetLabels()
 
         if (time < MIN_TIME || time > MAX_TIME) {
@@ -26,9 +43,22 @@ export class HeatRunner implements IHeatRunner {
             return false
         }
     
-        const exibitionTime = getExibitionTime(time)
-        this.setExibitionTime(exibitionTime)
-    
+        this.isRunning = true
+        this.remainingTime = time
+        this.updateExibitionTime()
         return true
+    }
+
+    fastStart(): { time: string, potency: string } {
+        const time = FAST_START_TIME
+        const potency = FAST_START_POTENCY
+        this.startTheHeat(time, potency)
+        return { time: String(time), potency: String(potency) }
+    }
+
+    private updateExibitionTime(){
+        this.setExibitionTime(
+            getExibitionTime(this.remainingTime)
+        )
     }
 }

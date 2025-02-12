@@ -5,19 +5,12 @@ export const MIN_POTENCY = 1
 export const MAX_POTENCY = 10
 export const DEFAULT_POTENCY = 10
 
-/*
-export type SucessHeatResponse = {
-    status: 'sucess',
-}
+export const FAST_START_TIME = 30
+export const FAST_START_POTENCY = 10
 
-export type ErrorHeatResponse = {
-    status: 'error',
-    message: string,
-}
-
-export type HeatResponse = SucessHeatResponse | ErrorHeatResponse
-*/
+export const TIME_ADDITION = 30
 
 export interface IHeatRunner {
-    startTheHeat(time: number, potency: number): boolean // HeatResponse
+    clickToHeat(time: number, potency: number): boolean
+    fastStart(): { time: string, potency: string }
 }
