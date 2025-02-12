@@ -11,25 +11,67 @@ export class HeatRunner implements IHeatRunner {
     constructor(
         private setExibitionTime: Setter<string>,
         private setErrorLabel: Setter<string>,
-        private setProcessLabel: Setter<string>
-    ){}
+        private setProcessLabel: Setter<string>,
+        private cleanInputs: () => void
+    ){ }
+
+    private setDefaultData(){
+        this.isRunning = false
+        this.actualPotency = 0
+        this.remainingTime = 0
+        this.processText = ''
+    }
 
     private resetLabels(){
         this.setExibitionTime('')
         this.setErrorLabel('')
     }
 
-    clickToHeat(time: number, potency: number = DEFAULT_POTENCY): boolean {
+    clickToHeat(time: number, potency: number = DEFAULT_POTENCY) {
         if (this.isRunning) {
             return this.increaseTime()
         } else {
-            return this.startTheHeat(time, potency)
+            if(this.remainingTime > 0) {
+                return this.resumeTheHeat()
+            } else {
+                return this.startTheHeat(time, potency)
+            }
         }
+    }
+
+    clickToStop(): void {
+        if (this.isRunning){
+            this.pauseTheHeat()
+        } else {
+            this.forgetTheHeat()
+        }
+    }
+
+    private pauseTheHeat() {
+        this.isRunning = false
+    }
+
+    private forgetTheHeat() {
+        this.setDefaultData()
+        this.resetLabels()
+        this.cleanInputs()
+        this.setProcessLabel('')
     }
 
     private increaseTime(): boolean{
         this.remainingTime += TIME_ADDITION
         this.updateExibitionTime()
+        return true
+    }
+
+    private resumeTheHeat(): boolean {
+        this.isRunning = true
+
+        this.heatLoop()
+        const myInterval = setInterval(()=>{
+            this.heatLoop(myInterval)
+        }, 1000)
+
         return true
     }
 

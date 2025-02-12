@@ -13,4 +13,5 @@ export const TIME_ADDITION = 30
 export interface IHeatRunner {
     clickToHeat(time: number, potency: number): boolean
     fastStart(): { time: string, potency: string }
+    clickToStop(): void
 }
