@@ -4,8 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Micro Ondas Digital</title>
+    <link rel="stylesheet" href="src/styles/style.css">
 </head>
 <body>
-    <script src="dist/index.js"></script>
+    <div class="main">
+        <div class="entry-div">
+            <label>Tempo</label>
+            <input type="number" id="timeInput">
+        </div>
+        <div class="entry-div">
+            <label>Potência</label>
+            <input type="number" id="potencyInput">
+        </div>
+        <div class="button-group">
+            <input type="button" value="Aquecer" id="heatButton">
+            <input type="button" value="Início Rápido" id="fastStartButton">
+            <input type="button" value="Pausar/Cancelar" id="stopButton">
+        </div>
+        <div class="label-group">
+            <label id="errorLabel"></label>
+            <label id="exibitionTimeLabel"></label>
+            <label id="processLabel"></label>
+        </div>
+    </div>
 </body>
+<script type="module" src="dist/index.js"></script>
 </html>
