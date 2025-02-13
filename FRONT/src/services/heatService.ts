@@ -1,9 +1,11 @@
-import { DEFAULT_POTENCY, FAST_START_POTENCY, FAST_START_TIME, IHeatRunner, MAX_POTENCY, MAX_TIME, MIN_POTENCY, MIN_TIME, TIME_ADDITION } from "../domain/heatDomain.js"
-import { Setter, UncertainResponse } from "../domain/utils.js"
-import { getExibitionTime } from "./time.js"
+import { DEFAULT_POTENCY, DEFAULT_TOKEN, FAST_START_POTENCY, FAST_START_TIME, HeatProgram, IHeatRunner, MAX_POTENCY, MAX_TIME, MIN_POTENCY, MIN_TIME, TIME_ADDITION } from "../domain/heatDomain"
+import { Setter, UncertainResponse } from "../domain/utils"
+import { getExibitionTime } from "./time"
 
 export class HeatRunner implements IHeatRunner {
     private isRunning: boolean = false
+    private heatProgramRunning: boolean = false
+    private customToken: string = DEFAULT_TOKEN
     private actualPotency: number = 0
     private remainingTime: number = 0
     private processText: string = ''
@@ -17,7 +19,9 @@ export class HeatRunner implements IHeatRunner {
 
     clickToHeat(time: number, potency: number = DEFAULT_POTENCY) {
         if (this.isRunning) {
-            this.increaseTime()
+            if(!this.heatProgramRunning){
+                this.increaseTime()
+            }
         } else {
             if(this.remainingTime > 0) {
                 this.resumeTheHeat()
@@ -49,6 +53,13 @@ export class HeatRunner implements IHeatRunner {
             this.forgetTheHeat()
         }
     }
+    
+    startHeatProgram(prog: HeatProgram): UncertainResponse<{ time: string, potency: string }> {
+        if(this.isRunning) return { error: true }
+        this.heatProgramRunning = true
+        this.startTheHeat(prog.time, prog.potency, prog.heatToken)
+        return {error: false, value: {time: String(prog.time), potency: String(prog.potency)}}
+    }
 
     private pauseTheHeat() {
         this.isRunning = false
@@ -75,10 +86,10 @@ export class HeatRunner implements IHeatRunner {
         }, 1000)
     }
 
-    private startTheHeat(time: number, potency: number) {
+    private startTheHeat(time: number, potency: number, token: string = DEFAULT_TOKEN) {
         this.resetLabels()
 
-        if (time < MIN_TIME || time > MAX_TIME) {
+        if (time < MIN_TIME || (!this.heatProgramRunning && time > MAX_TIME)) {
             this.setErrorLabel(`Tempo deve ficar entre ${MIN_TIME} e ${MAX_TIME}`)
             return
         }
@@ -91,6 +102,7 @@ export class HeatRunner implements IHeatRunner {
         this.isRunning = true
         this.remainingTime = time
         this.actualPotency = potency
+        this.customToken = token
         this.updateExibitionTime()
 
         this.heatLoop()
@@ -106,11 +118,13 @@ export class HeatRunner implements IHeatRunner {
         }
         
         this.remainingTime -= 1
-        this.processText += '.'.repeat(this.actualPotency)+' '
+        this.processText += this.customToken.repeat(this.actualPotency)+' '
 
         if (this.remainingTime<=0) {
             this.processText += 'Aquecimento concluído'
+            this.heatProgramRunning = false
             clearInterval(theInverval)
+            this.cleanInputs()
         }
 
         this.updateExibitionTime()
@@ -125,6 +139,7 @@ export class HeatRunner implements IHeatRunner {
     
     private setDefaultData(){
         this.isRunning = false
+        this.heatProgramRunning = false
         this.actualPotency = 0
         this.remainingTime = 0
         this.processText = ''

@@ -1,6 +1,8 @@
-import { errorLabel, exibitionTimeLabel, fastStartButton, heatButton, potencyInput, processLabel, stopButton, timeInput } from "./config.js"
-import { DEFAULT_POTENCY, IHeatRunner } from "./domain/heatDomain.js"
-import { HeatRunner } from "./services/heatService.js"
+import { errorLabel, exibitionTimeLabel, fastStartButton, heatButton, heatProgramsDiv, potencyInput, processLabel, stopButton, timeInput } from "./config"
+import { DEFAULT_POTENCY, HeatProgram, IHeatRunner } from "./domain/heatDomain"
+import { HeatRunner } from "./services/heatService"
+import { RequestAllHeatPrograms } from "./requests/heatProgramRequest"
+import { registerHeatProgram } from "./visual/registerHeatProgram"
 
 const setExibitionTime = (time: string) => {
     exibitionTimeLabel.innerText = time
@@ -17,7 +19,30 @@ const setProcessLabel = (process: string) => {
 const cleanInputs = () => {
     timeInput.value = ''
     potencyInput.value = ''
+    timeInput.readOnly = false
+    potencyInput.readOnly = false
 }
+
+const appendHeatProgram = (element: HTMLElement) => {
+    heatProgramsDiv.append(element)
+}
+
+const heatProgramEvent = (prog: HeatProgram) => {
+    const response = HeatService.startHeatProgram(prog)
+    if(!response.error){
+        potencyInput.value = response.value.potency
+        timeInput.value = response.value.time
+        timeInput.readOnly = true
+        potencyInput.readOnly = true
+    }
+}
+
+RequestAllHeatPrograms()
+    .then(res => {
+        res.forEach(prog=>registerHeatProgram(
+            prog, appendHeatProgram, heatProgramEvent
+        ))
+    })
 
 const HeatService: IHeatRunner = new HeatRunner(
     setExibitionTime, setErrorLabel, setProcessLabel, cleanInputs
