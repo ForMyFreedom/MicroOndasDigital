@@ -1,7 +1,7 @@
-﻿using Api.Domain;
+﻿using API.Domain;
 using System.Text.Json;
 
-namespace Api.Services
+namespace API.Services
 {
     public class HeatProgramServices
     {

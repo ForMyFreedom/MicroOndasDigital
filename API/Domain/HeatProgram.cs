@@ -1,5 +1,5 @@
 ﻿
-namespace Api.Domain
+namespace API.Domain
 {
     public class HeatProgramDto
     {
