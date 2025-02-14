@@ -48,3 +48,7 @@
 #exibitionTimeLabel{
     font-size: 3rem;
 }
+
+.italic {
+    font-style: italic;
+}

@@ -7,3 +7,4 @@ export const stopButton = document.getElementById("stopButton") as HTMLButtonEle
 export const errorLabel = document.getElementById("errorLabel") as HTMLLabelElement
 export const exibitionTimeLabel = document.getElementById("exibitionTimeLabel") as HTMLLabelElement
 export const processLabel = document.getElementById("processLabel") as HTMLLabelElement
+export const heatProgramsDiv = document.getElementById("heatProgramsDiv") as HTMLDivElement
