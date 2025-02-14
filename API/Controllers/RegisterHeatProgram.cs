@@ -1,6 +1,7 @@
 using API.Services;
 using API.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -11,6 +12,7 @@ namespace API.Controllers
         private static readonly HeatProgramServices Service = new();
 
         [HttpPost]
+        [Authorize]
         public IActionResult CreateHeatProgram([FromBody] HeatProgramDto dto)
         {
             try
@@ -25,6 +27,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult GetHeatPrograms()
         {
             return Ok(Service.All());
