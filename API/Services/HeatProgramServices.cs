@@ -1,29 +1,19 @@
-﻿using Api.Domain;
-using System.Text.Json;
+﻿using API.Domain;
+using API.Exceptions;
+using API.Interfaces;
 
-namespace Api.Services
+namespace API.Services
 {
     public class HeatProgramServices
     {
-        private static readonly List<HeatProgram> AllHeatPrograms = HeatProgram.GetStandartPrograms();
-        private static readonly string FolderName = "dist/";
+        private readonly List<HeatProgram> AllHeatPrograms = [];
+        private readonly IHeatProgramRepository repository;
 
-        public HeatProgramServices()
+        public HeatProgramServices(IHeatProgramRepository _repository)
         {
-            if (Directory.Exists(FolderName))
-            {
-                string[] files = Directory.GetFiles(FolderName);
-                foreach(string filePath in files)
-                {
-                    string jsonData = File.ReadAllText(filePath);
-
-                    HeatProgramDto? program = JsonSerializer.Deserialize<HeatProgramDto>(jsonData);
-                    if (program != null)
-                    {
-                        AllHeatPrograms.Add(new HeatProgram(program));
-                    }
-                }
-            }
+            repository = _repository;
+            AllHeatPrograms = HeatProgram.GetStandartPrograms();
+            repository.Initialization(AllHeatPrograms);
         }
 
         public List<HeatProgram> All()
@@ -31,16 +21,22 @@ namespace Api.Services
             return AllHeatPrograms;
         }
 
-        public HeatProgram Register(HeatProgramDto dto)
+        public async Task<HeatProgram> Register(HeatProgramDto dto)
         {
-            HeatProgram program = new(dto);
+            if (HeatProgram.ALL_TOKENS.Contains(dto.HeatToken))
+            {
+                throw new HeatException("Não se pode repetir string de aquecimento");
+            }
+
+            if(dto.HeatToken == ".")
+            {
+                throw new HeatException("A string de aquecimento padrão não pode ser selecionada");
+            }
+
+            HeatProgram program = await repository.Register(dto);
+
             AllHeatPrograms.Add(program);
-
-            string jsonFormat = JsonSerializer.Serialize(program);
-            File.WriteAllText(FolderName + program.Name+".json", jsonFormat);
-
             return program;
         }
-
     }
 }

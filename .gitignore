@@ -402,3 +402,11 @@ FodyWeavers.xsd
 *.sln.iml
 
 dist/
+
+*.db
+*.db-shm
+*.db-wal
+
+Migrations/
+
+secrets.json
