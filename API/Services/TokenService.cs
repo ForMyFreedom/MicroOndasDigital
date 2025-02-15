@@ -1,11 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using API.Domain;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 namespace API.Services
 {
-    public class TokenService
+    public class CryptoService
     {
         public static string GenerateToken(User user)
         {
@@ -24,6 +26,15 @@ namespace API.Services
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public static string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(bytes);
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 using API;
 using API.Data;
+using API.Interfaces;
+using API.Middleware;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
@@ -17,7 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
-        builder => builder.AllowAnyOrigin());
+        builder => builder.AllowAnyOrigin().AllowAnyHeader());
 });
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -37,7 +39,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+builder.Services.AddScoped<IHeatProgramRepository, HeatJSONRegister>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<HeatProgramServices>();
 
 IConfigurationBuilder secretBuilder = new ConfigurationBuilder().AddJsonFile("secrets.json", optional: false, reloadOnChange: true);
 IConfigurationRoot secretRoot = secretBuilder.Build();
@@ -54,8 +59,6 @@ else
     throw new Exception("Má configuração do secret.json");
 }
 
-
-Console.WriteLine(key);
 Settings.GetInstance().SetJWTSecretKey(key);
 
 
@@ -78,6 +81,9 @@ builder.Services.AddAuthentication(x =>
 // -----------------------------------------------------------------------------------------------------
 
 var app = builder.Build();
+
+app.UseMiddleware<CustomUnauthorizedResponseMiddleware>();
+app.UseMiddleware<CustomBadRequestMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");

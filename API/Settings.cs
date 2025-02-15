@@ -2,7 +2,7 @@
 {
     public sealed class Settings
     {
-        private Settings () { }
+        private Settings() { }
         private static Settings _instance;
         private byte[] jwtSecretKey;
 

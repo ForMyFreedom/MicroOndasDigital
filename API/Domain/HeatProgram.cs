@@ -13,7 +13,7 @@ namespace API.Domain
 
     public class HeatProgram
     {
-        private readonly static List<string> ALL_TOKENS = [];
+        public readonly static List<string> ALL_TOKENS = [];
         public string Name { get; private set; }
         public string Food { get; private set; }
         public int Time { get; private set; }
@@ -24,16 +24,6 @@ namespace API.Domain
 
         public HeatProgram(string name, string food, int time, int potency, string heatToken, bool isStandart, string? instructions)
         {
-            if (ALL_TOKENS.Contains(heatToken))
-            {
-                throw new Exception("Não se pode repetir string de aquecimento");
-            }
-            
-            if (heatToken == ".")
-            {
-                throw new Exception("A string de aquecimento padrão não pode ser selecionada");
-            }
-
             this.Name = name;
             this.Food = food;
             this.Time = time;

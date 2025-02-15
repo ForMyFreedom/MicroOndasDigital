@@ -1,27 +1,29 @@
 ﻿using API.Domain;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
-    public class UserController(UserService userService) : ControllerBase
+    public class UserController(UserService _userService) : ControllerBase
     {
-        private readonly UserService _userService = userService;
+        private readonly UserService userService = _userService;
 
         [HttpPost("login")]
         public async Task<IActionResult> Authenticate([FromBody] UserDTO userEntry)
         {
-            var user = await _userService.Get(userEntry.Username, userEntry.Password);
+            var user = await userService.Get(userEntry.Username, userEntry.Password);
 
             if (user == null)
             {
-                return NotFound(new { message = "Usuário ou senha inválidos" });
+                SystemMessageBase error = new(new("Usuário ou senha inválidos"));
+                return NotFound(error);
             }
 
-            var token = TokenService.GenerateToken(user);
-
-            return Ok(new { token });
+            var token = CryptoService.GenerateToken(user);
+            SystemMessage<string> message = new(token);
+            return Ok(message);
         }
 
         [HttpPost("register")]
@@ -29,12 +31,14 @@ namespace API.Controllers
         {
             try
             {
-                await _userService.Register(userEntry);
-                return Ok("Usuário registrado com sucesso.");
+                await userService.Register(userEntry);
+                SystemMessage<string> message = new("Usuário registrado com sucesso.");
+                return Ok(message);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(ex.Message);
+                SystemMessageBase error = new(new(ex.Message));
+                return BadRequest(error);
             }
         }
     }

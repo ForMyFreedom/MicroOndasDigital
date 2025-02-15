@@ -2,27 +2,30 @@ using API.Services;
 using API.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using API.Data;
 
 namespace API.Controllers
 {
     [Route("heat-program")]
     [ApiController]
-    public class HeatProgramControlllers : ControllerBase
+    public class HeatProgramControlllers(HeatProgramServices _heatService) : ControllerBase
     {
-        private static readonly HeatProgramServices Service = new();
+        private readonly HeatProgramServices heatService = _heatService;
 
         [HttpPost]
         [Authorize]
-        public IActionResult CreateHeatProgram([FromBody] HeatProgramDto dto)
+        public async Task<IActionResult> CreateHeatProgram([FromBody] HeatProgramDto dto)
         {
             try
             {
-                HeatProgram program = Service.Register(dto);
-                return Ok(program);
+                HeatProgram program = await heatService.Register(dto);
+                SystemMessage<HeatProgram> message = new(program);
+                return Ok(message);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                SystemMessageBase error = new(new(ex.Message));
+                return BadRequest(error);
             }
         }
 
@@ -30,7 +33,8 @@ namespace API.Controllers
         [Authorize]
         public IActionResult GetHeatPrograms()
         {
-            return Ok(Service.All());
+            SystemMessage<List<HeatProgram>> message = new(heatService.All());
+            return Ok(message);
         }
     }
 }
