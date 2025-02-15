@@ -39,7 +39,7 @@ const heatProgramEvent = (prog: HeatProgram) => {
 
 RequestAllHeatPrograms()
     .then(res => {
-        res.forEach(prog=>registerHeatProgram(
+        res.response.forEach(prog=>registerHeatProgram(
             prog, appendHeatProgram, heatProgramEvent
         ))
     })
